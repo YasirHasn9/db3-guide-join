@@ -1,76 +1,88 @@
-const express = require("express")
-const db = require("../data/config")
+const express = require("express");
+const db = require("../data/config");
+const Users = require("./module");
 
-const router = express.Router()
+const router = express.Router();
 
 router.get("/", async (req, res, next) => {
-	try {
-		res.json(await db("users"))
-	} catch(err) {
-		next(err)
-	}
-})
+  try {
+    res.json(await Users.all());
+  } catch (err) {
+    next(err);
+  }
+});
 
 router.get("/:id", validateUserId(), async (req, res, next) => {
-	try {
-		res.json(req.user)
-	} catch(err) {
-		next(err)
-	}
-})
+  try {
+    const user = await Users.findById(req.params.id);
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+});
 
 router.post("/", async (req, res, next) => {
-	try {
-		const [id] = await db("users").insert(req.body)
-		const user = await db("users").where({ id }).first()
+  try {
+    const [id] = await db("users").insert(req.body);
+    const user = await db("users")
+      .where({ id })
+      .first();
 
-		res.status(201).json(user)
-	} catch(err) {
-		next(err)
-	}
-})
+    res.status(201).json(user);
+  } catch (err) {
+    next(err);
+  }
+});
 
 router.put("/:id", validateUserId(), async (req, res, next) => {
-	try {
-		const { id } = req.params
-		await db("users").where({ id }).update(req.body)
-		const user = await db("users").where({ id }).first()
-		
-		res.json(user)
-	} catch(err) {
-		next(err)
-	}
-})
+  try {
+    const { id } = req.params;
+    await db("users")
+      .where({ id })
+      .update(req.body);
+    const user = await db("users")
+      .where({ id })
+      .first();
+
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+});
 
 router.delete("/:id", validateUserId(), async (req, res, next) => {
-	try {
-		const { id } = req.params
-		await db("users").where({ id }).del()
+  try {
+    const { id } = req.params;
+    await db("users")
+      .where({ id })
+      .del();
 
-		res.status(204).end()
-	} catch(err) {
-		next(err)
-	}
-})
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+});
 
 function validateUserId() {
-	return async (req, res, next) => {
-		try {
-			const { id } = req.params
-			const user = await db("users").where({ id }).first()
+  return async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const user = await db("users")
+        .where({ id })
+        .first();
 
-			if (!user) {
-				return res.status(404).json({
-					message: "User not found",
-				})
-			}
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found"
+        });
+      }
 
-			req.user = user
-			next()
-		} catch(err) {
-			next(err)
-		}
-	}
+      req.user = user;
+      next();
+    } catch (err) {
+      next(err);
+    }
+  };
 }
 
-module.exports = router
+module.exports = router;
