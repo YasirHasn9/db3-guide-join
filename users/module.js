@@ -1,7 +1,8 @@
 const db = require("../data/config");
 module.exports = {
   all,
-  findById
+  findById,
+  update
 };
 
 function all() {
@@ -13,3 +14,13 @@ function findById(id) {
     .where({ id })
     .first();
 }
+
+function update(id, data) {
+  return db("users")
+    .where({ id })
+    .first()
+    .update(data);
+}
+
+
+

@@ -12,7 +12,6 @@ server.use(express.json());
 
 server.use("/", welcomeRouter);
 server.use("/users", userRouter);
-server.use("/posts", postRouter);
 
 server.use((err, req, res, next) => {
   console.log(err);
